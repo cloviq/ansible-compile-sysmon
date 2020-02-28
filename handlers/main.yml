@@ -1,0 +1,13 @@
+---
+# handlers file for compile-sysmon
+
+- name: Remove git installer
+  win_file:
+    path: '{{ ansible_env.USERPROFILE }}\Downloads\{{ git_exe }}'
+    state: absent
+
+- name: Remove sysmon-modular
+  win_file:
+    path: '{{ ansible_env.USERPROFILE }}\Downloads\sysmon-modular'
+    state: absent
+

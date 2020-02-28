@@ -1,0 +1,9 @@
+---
+# defaults file for /etc/ansible/roles/sysmon
+
+## Windows defaults
+git_exe: Git-2.25.1-64-bit.exe
+git_state: present
+git_install_args: /SILENT /COMPONENTS="icons,ext\reg\shellhere,assoc,assoc_sh"
+git_repo: https://github.com/olafhartong/sysmon-modular.git
+

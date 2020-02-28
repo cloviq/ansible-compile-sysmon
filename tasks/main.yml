@@ -1,0 +1,6 @@
+---
+# tasks file for sysmon
+
+- name: Import Windows based tasks
+  import_tasks: windows.yml
+  when: ansible_os_family|lower == 'windows'

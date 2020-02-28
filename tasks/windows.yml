@@ -1,0 +1,51 @@
+---
+- name: Win check whether installer is copied/downloaded
+  win_stat:
+    path: '{{ ansible_env.USERPROFILE }}\Downloads\{{ git_exe }}'
+  register: gitexe
+
+- name: Win copy git exe to host
+  win_copy:
+    src: "{{ git_exe }}"
+    dest: '{{ ansible_env.USERPROFILE }}\Downloads\{{ git_exe }}'
+  when: 
+    - git_state == "present" 
+    - gitexe.stat.exists == False
+
+- name: Install Git
+  win_package:
+    path: '{{ ansible_env.USERPROFILE }}\Downloads\{{ git_exe }}'
+    product_id: Git_is1
+    state: "{{ git_state }}"
+    arguments: "{{ git_install_args }}"
+  when: git_state == "present"
+  notify: Remove git installer
+
+- name: Remove previous git clone
+  win_file:
+    path: '{{ ansible_env.USERPROFILE }}\Downloads\sysmon-modular'
+    state: absent
+
+- name: Clone the sysmon repo
+  win_command: git clone {{ git_repo }}
+  args:
+    chdir: '{{ ansible_env.USERPROFILE }}\Downloads'
+
+- name: Remove sysmonconfig file
+  win_file:
+    path: '{{ ansible_env.USERPROFILE }}\Downloads\sysmon-modular\sysmonconfig.xml'
+    state: absent
+
+- name: Run sysmon merge script
+  args:
+      chdir: '{{ ansible_env.USERPROFILE }}\Downloads\sysmon-modular'
+  win_shell: |
+    . .\Merge-SysmonXml.ps1
+    Merge-AllSysmonXml -Path ( Get-ChildItem '[0-9]*\*.xml') -AsString | Out-File sysmonconfig.xml
+
+- name: Fetch compiled sysmonconfig.xml
+  fetch:
+    src: '{{ ansible_env.USERPROFILE }}\Downloads\sysmon-modular\sysmonconfig.xml'
+    dest: /tmp/sysmonconfig.xml    
+    flat: yes
+  notify: Remove sysmon-modular
