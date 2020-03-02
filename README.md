@@ -1,4 +1,4 @@
-Role Name
+compile-sysmon
 =========
 
 This role is intended to be run against one windows host to compile the sysmon config that is stored in a git repo.
